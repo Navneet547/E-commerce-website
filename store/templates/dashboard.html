@@ -1,0 +1,91 @@
+{% load cart %}
+{% load custom_filter %}
+{% include "base.html" %}
+    <div class="container-fluid mt-5">
+        <div class="row">
+            <div class="col-md-3">
+                <div class="card">
+                    <div class="card-header">
+                        <h3>CATEGORY LIST</h3>
+                    </div>
+                    <div class="card-body">
+                        <ul class="list-group list-group-flush">
+                            <!-- Loop through categories and display as list items -->
+                            {% for category in categorylist %}
+                            <div class="border border-black"> <a class="text-black"
+                                    href="{% url 'dashboard_with_category' category.id %}">
+                                    <li class="list-group-item">{{ category.name|upper }}</li>
+                                </a>
+                            </div>
+                            {% endfor %}
+                        </ul>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-9 ">
+                <h2>SHOPPING PRODUCTS</h2>
+                <div class="badge-success text-center p-2">
+                {% if category_name  %}
+                    <h5 >{{category_name.name|upper}}</h5>
+                {% else %}
+                    <h5 >MENS CLOTHS</h5>
+                {% endif %}
+                </div>
+                <div class="row ">
+                    <div class="col d-flex flex-wrap">
+                        {% if productlist %}
+                        {% for product in productlist %}
+                        <div class="card" style=" height: 400px; margin: 10px;">
+                            <img class="card-img-top img-fluid " style="height: 200px; width:300px;"
+                                src="{{product.image.url}}" alt="Card image cap">
+                            <div class="card-body">
+                                <h5 class="card-title">{{product.name|upper}}</h5>
+                                <p class="card-text">{{product.description|lower}}</p>
+                            </div>
+                            <ul class="list-group list-group-flush">
+                                <li class="list-group-item font-weight-bold text-primary">{{product.price}}&nbsp;Rs.
+                                </li>
+                            </ul>
+                            <div class="card-footer p-0 no-gutters">
+
+                                {% if product|is_in_cart:request.session.cart %}
+                                <div class="row no-gutters">
+                                    <form action="/#{{product.id}}" class="col-2 " method="post">
+                                        {% csrf_token %}
+                                        <input hidden type="text" name='product' value='{{product.id}}'>
+                                        <input hidden type="text" name='remove' value='True'>
+                                        <input type="submit" value=" - " class="btn btn-block btn-success border-right">
+                                    </form>
+                                    <div class="text-center col btn btn-success">
+                                        {{product|cart_quantity:request.session.cart}} in Cart</div>
+                                    <form action="/#{{product.id}}" class="col-2 " method="post">
+                                        {% csrf_token %}
+                                        <input hidden type="text" name='product' value='{{product.id}}'>
+                                        <input type="submit" value=" + " class="btn btn-block btn-success border-left">
+                                    </form>
+                                </div>
+                                {% else %}
+                                <form action="/#{{product.id}}" method="POST" class="btn-block">
+                                    {% csrf_token %}
+                                    <input hidden type="text" name='product' value='{{product.id}}'>
+                                    <input type="submit" class="float-right btn btn-success form-control"
+                                        value="Add To Cart">
+                                </form>
+                                {% endif %}
+
+                            </div>
+
+                        </div>
+                        {% endfor %}
+                        {% else %}
+                        <div>
+                            <p>No product available</p>
+                        </div>
+                        {% endif %}
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <!-- Bootstrap JS -->
+{% include "footer.html" %}
